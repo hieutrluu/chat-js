@@ -1,6 +1,7 @@
 import {tx} from '../../db.js';
 import Pusher from 'pusher';
 import {defaultSpaceID} from './init.js';
+import { io } from "socket.io-client";
 
 export default handlePush;
 
@@ -169,15 +170,21 @@ async function createMessage(t, {id, from, content, order}, spaceID, version) {
   );
 }
 
+// const socket = io();
 async function sendPoke() {
-  const pusher = new Pusher({
-    appId: process.env.NEXT_PUBLIC_REPLICHAT_PUSHER_APP_ID,
-    key: process.env.NEXT_PUBLIC_REPLICHAT_PUSHER_KEY,
-    secret: process.env.NEXT_PUBLIC_REPLICHAT_PUSHER_SECRET,
-    cluster: process.env.NEXT_PUBLIC_REPLICHAT_PUSHER_CLUSTER,
-    useTLS: true,
-  });
+
+  // const pusher = new Pusher({
+  //   appId: process.env.NEXT_PUBLIC_REPLICHAT_PUSHER_APP_ID,
+  //   key: process.env.NEXT_PUBLIC_REPLICHAT_PUSHER_KEY,
+  //   secret: process.env.NEXT_PUBLIC_REPLICHAT_PUSHER_SECRET,
+  //   cluster: process.env.NEXT_PUBLIC_REPLICHAT_PUSHER_CLUSTER,
+  //   useTLS: true,
+  // });
   const t0 = Date.now();
-  await pusher.trigger('default', 'poke', {});
+
+  // io.on("connection", (socket) => {
+  socket.broadcast.emit("default", "poke");
+  // });
+  // await pusher.trigger('default', 'poke', {});
   console.log('Sent poke in', Date.now() - t0);
 }

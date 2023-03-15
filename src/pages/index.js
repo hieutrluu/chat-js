@@ -3,6 +3,7 @@ import {Replicache} from 'replicache';
 import {useSubscribe} from 'replicache-react';
 import {nanoid} from 'nanoid';
 import Pusher from 'pusher-js';
+import { io } from "socket.io-client";
 
 const rep = process.browser
   ? new Replicache({
@@ -106,14 +107,59 @@ const styles = {
 
 function listen(rep) {
   console.log('listening');
+  const socket = io();
+  // socket.on("connect", () => {
+  //   console.log(socket.connected); // true
+  // });
+  
+  // socket.on("disconnect", () => {
+  //   console.log(socket.connected); // false
+  // });
+  socket.on("connect", () => {
+    const engine = socket.io.engine;
+    console.log(engine.transport.name); // in most cases, prints "polling"
+  
+    engine.on("poke", (arg) => {
+      console.log('on poke');
+      console.log(arg); // world
+      rep.pull();
+    });
+
+    engine.on("default", (arg) => {
+      console.log('on default');
+      console.log(arg); // world
+      rep.pull();
+    });
+
+    engine.once("upgrade", () => {
+      // called when the transport is upgraded (i.e. from HTTP long-polling to WebSocket)
+      console.log(engine.transport.name); // in most cases, prints "websocket"
+    });
+  
+    engine.on("packet", ({ type, data }) => {
+      // called for each packet received
+    });
+  
+    engine.on("packetCreate", ({ type, data }) => {
+      // called for each packet sent
+    });
+  
+    engine.on("drain", () => {
+      // called when the write buffer is drained
+    });
+  
+    engine.on("close", (reason) => {
+      // called when the underlying connection is closed
+    });
+  });
   // Listen for pokes, and pull whenever we get one.
-  Pusher.logToConsole = true;
-  const pusher = new Pusher(process.env.NEXT_PUBLIC_REPLICHAT_PUSHER_KEY, {
-    cluster: process.env.NEXT_PUBLIC_REPLICHAT_PUSHER_CLUSTER,
-  });
-  const channel = pusher.subscribe('default');
-  channel.bind('poke', () => {
-    console.log('got poked');
-    rep.pull();
-  });
+  // Pusher.logToConsole = true;
+  // const pusher = new Pusher(process.env.NEXT_PUBLIC_REPLICHAT_PUSHER_KEY, {
+  //   cluster: process.env.NEXT_PUBLIC_REPLICHAT_PUSHER_CLUSTER,
+  // });
+  // const channel = pusher.subscribe('default');
+  // channel.bind('poke', () => {
+  //   console.log('got poked');
+  //   rep.pull();
+  // });
 }
