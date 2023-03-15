@@ -2,6 +2,7 @@ import React, {useRef} from 'react';
 import {Replicache} from 'replicache';
 import {useSubscribe} from 'replicache-react';
 import {nanoid} from 'nanoid';
+import Pusher from 'pusher-js';
 
 const rep = process.browser
   ? new Replicache({
@@ -104,5 +105,15 @@ const styles = {
 };
 
 function listen(rep) {
-  // TODO: Listen for changes on server
+  console.log('listening');
+  // Listen for pokes, and pull whenever we get one.
+  Pusher.logToConsole = true;
+  const pusher = new Pusher(process.env.NEXT_PUBLIC_REPLICHAT_PUSHER_KEY, {
+    cluster: process.env.NEXT_PUBLIC_REPLICHAT_PUSHER_CLUSTER,
+  });
+  const channel = pusher.subscribe('default');
+  channel.bind('poke', () => {
+    console.log('got poked');
+    rep.pull();
+  });
 }
