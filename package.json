@@ -1,0 +1,22 @@
+{
+  "name": "chat-js",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "nanoid": "^4.0.1",
+    "next": "13.2.4",
+    "pg-promise": "^11.4.1",
+    "pusher": "^5.1.2",
+    "pusher-js": "^8.0.1",
+    "react": "18.2.0",
+    "react-dom": "18.2.0",
+    "replicache": "^12.2.1",
+    "replicache-react": "^2.10.1"
+  }
+}
