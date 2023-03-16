@@ -1,7 +1,8 @@
 import {tx} from '../../db.js';
 import Pusher from 'pusher';
 import {defaultSpaceID} from './init.js';
-import { io } from "socket.io-client";
+// import { io } from "socket.io-client";
+import { getSocket } from '../socket.js';
 
 export default handlePush;
 
@@ -59,7 +60,10 @@ async function handlePush(req, res) {
 
     // We need to await here otherwise, Next.js will frequently kill the request
     // and the poke won't get sent.
-    await sendPoke();
+    var socket = getSocket('localhost:9000')
+    console.log('send ws response');
+    socket.emit('default', 'poke');
+    // await sendPoke(socket);
   } catch (e) {
     console.error(e);
     res.status(500).send(e.toString());
@@ -170,8 +174,7 @@ async function createMessage(t, {id, from, content, order}, spaceID, version) {
   );
 }
 
-// const socket = io();
-async function sendPoke() {
+async function sendPoke(socket) {
 
   // const pusher = new Pusher({
   //   appId: process.env.NEXT_PUBLIC_REPLICHAT_PUSHER_APP_ID,
@@ -181,10 +184,18 @@ async function sendPoke() {
   //   useTLS: true,
   // });
   const t0 = Date.now();
+  if (socket){
 
-  // io.on("connection", (socket) => {
-  socket.broadcast.emit("default", "poke");
-  // });
-  // await pusher.trigger('default', 'poke', {});
-  console.log('Sent poke in', Date.now() - t0);
+  } else{
+    const socket = getSocket();
+    socket.on('connect', (data) => {
+      console.log(data);
+      // Use the socket instance to emit or receive events
+      // socket.emit.boardcast('default', 'poke');
+      // socket.broadcast.to("default").emit("message", message);
+  
+    });
+  }
+  socket.emit('default', 'poke');
+  console.log('socket on sendpoke');
 }

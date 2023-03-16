@@ -2,8 +2,8 @@ import React, {useRef} from 'react';
 import {Replicache} from 'replicache';
 import {useSubscribe} from 'replicache-react';
 import {nanoid} from 'nanoid';
-import Pusher from 'pusher-js';
-import { io } from "socket.io-client";
+// import { io } from "socket.io-client";
+import { getSocket } from './socket.js';
 
 const rep = process.browser
   ? new Replicache({
@@ -24,7 +24,21 @@ const rep = process.browser
   : null;
 
 if (rep) {
-  listen(rep);
+  // listen for default channel
+  var socket = getSocket('localhost:9000');
+  socket.on('connect', (data) => {
+    console.log(data);
+    console.log('listening for poke');
+    // Use the socket instance to emit or receive events
+    // socket.emit.boardcast('default', 'poke');
+    // socket.broadcast.to("default").emit("message", message);
+
+  });
+  socket.on('default', (data) => {
+    console.log('received poke');
+    rep.pull();
+  });
+  // listen(rep);
 }
 
 export default function Home() {
@@ -105,9 +119,23 @@ const styles = {
   },
 };
 
+// Define your client class
+
 function listen(rep) {
   console.log('listening');
-  const socket = io();
+
+  // Use the socket instance to emit or receive events
+  socket.on('default', (data) => {
+    console.log('on default');
+    console.log(data);
+  });
+
+  socket.on('poke', (data) => {
+    console.log('on poke');
+    console.log(data);
+  });
+
+  // const socket = io('localhost:9000');
   // socket.on("connect", () => {
   //   console.log(socket.connected); // true
   // });
@@ -115,43 +143,47 @@ function listen(rep) {
   // socket.on("disconnect", () => {
   //   console.log(socket.connected); // false
   // });
-  socket.on("connect", () => {
-    const engine = socket.io.engine;
-    console.log(engine.transport.name); // in most cases, prints "polling"
+  // socket.on("connect", () => {
+  //   console.log('on socketio connect');
+  //   const engine = socket.io.engine;
+  //   console.log(engine.transport.name); // in most cases, prints "polling"
   
-    engine.on("poke", (arg) => {
-      console.log('on poke');
-      console.log(arg); // world
-      rep.pull();
-    });
+  //   engine.on("poke", (arg) => {
+  //     console.log('on poke');
+  //     console.log(arg); // world
+  //     rep.pull();
+  //   });
 
-    engine.on("default", (arg) => {
-      console.log('on default');
-      console.log(arg); // world
-      rep.pull();
-    });
+  //   engine.on("default", (arg) => {
+  //     console.log('on default');
+  //     console.log(arg); // world
+  //     rep.pull();
+  //   });
 
-    engine.once("upgrade", () => {
-      // called when the transport is upgraded (i.e. from HTTP long-polling to WebSocket)
-      console.log(engine.transport.name); // in most cases, prints "websocket"
-    });
+  //   engine.once("upgrade", () => {
+  //     // called when the transport is upgraded (i.e. from HTTP long-polling to WebSocket)
+  //     console.log(engine.transport.name); // in most cases, prints "websocket"
+  //   });
   
-    engine.on("packet", ({ type, data }) => {
-      // called for each packet received
-    });
+  //   engine.on("packet", ({ type, data }) => {
+  //     // called for each packet received
+  //   });
   
-    engine.on("packetCreate", ({ type, data }) => {
-      // called for each packet sent
-    });
+  //   engine.on("packetCreate", ({ type, data }) => {
+  //     // called for each packet sent
+  //   });
   
-    engine.on("drain", () => {
-      // called when the write buffer is drained
-    });
+  //   engine.on("drain", () => {
+  //     // called when the write buffer is drained
+  //   });
   
-    engine.on("close", (reason) => {
-      // called when the underlying connection is closed
-    });
-  });
+  //   engine.on("close", (reason) => {
+  //     // called when the underlying connection is closed
+  //   });
+  // });
+  // socket.on("connect_error", (err) => {
+  //   console.log(`connect_error due to ${err.message}`);
+  // });
   // Listen for pokes, and pull whenever we get one.
   // Pusher.logToConsole = true;
   // const pusher = new Pusher(process.env.NEXT_PUBLIC_REPLICHAT_PUSHER_KEY, {
