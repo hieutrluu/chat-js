@@ -1,7 +1,5 @@
 import {tx} from '../../db.js';
-import Pusher from 'pusher';
 import {defaultSpaceID} from './init.js';
-// import { io } from "socket.io-client";
 import { getSocket } from '../socket.js';
 
 export default handlePush;
