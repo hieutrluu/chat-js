@@ -1,8 +1,9 @@
 import {tx} from '../../db.js';
-import {defaultSpaceID} from './init.js';
+// import {defaultSpaceID} from './init.js';
 import {getLastMutationID} from './replicache-push.js';
-
+import { defaultSpaceID } from '../const.JS';
 export default handlePull;
+
 
 async function handlePull(req, res) {
   const pull = req.body;

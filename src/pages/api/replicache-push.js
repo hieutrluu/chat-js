@@ -1,8 +1,7 @@
 import {tx} from '../../db.js';
-import Pusher from 'pusher';
-import {defaultSpaceID} from './init.js';
-// import { io } from "socket.io-client";
 import { getSocket } from '../socket.js';
+import { defaultSpaceID } from '../const';
+
 
 export default handlePush;
 
@@ -62,7 +61,7 @@ async function handlePush(req, res) {
     // and the poke won't get sent.
     var socket = getSocket('localhost:9000')
     console.log('send ws response');
-    socket.emit('default', 'poke');
+    socket.emit(defaultSpaceID, 'poke');
     // await sendPoke(socket);
   } catch (e) {
     console.error(e);
@@ -190,12 +189,8 @@ async function sendPoke(socket) {
     const socket = getSocket();
     socket.on('connect', (data) => {
       console.log(data);
-      // Use the socket instance to emit or receive events
-      // socket.emit.boardcast('default', 'poke');
-      // socket.broadcast.to("default").emit("message", message);
-  
     });
   }
-  socket.emit('default', 'poke');
+  socket.emit(defaultSpaceID, 'poke');
   console.log('socket on sendpoke');
 }

@@ -1,8 +1,7 @@
 import {tx} from '../../db.js';
-
+import { defaultSpaceID } from '../const.js';
 // For this tutorial, we will use just one space. For a real application, you
 // should partition your data into spaces as makes sense for your application.
-export const defaultSpaceID = 'default';
 
 export default async function init(_, res) {
   await tx(async t => {
